@@ -1,20 +1,22 @@
 package com.gideon.jwt_1.controller;
 
-import com.gideon.jwt_1.dtos.AuthenticationReponse;
+import com.gideon.jwt_1.dtos.AuthenticationResponse;
 import com.gideon.jwt_1.dtos.AuthenticationRequest;
-import jakarta.servlet.http.HttpServlet;
+import com.gideon.jwt_1.models.User;
+import com.gideon.jwt_1.services.jwt.JwtUtil;
 import jakarta.servlet.http.HttpServletResponse;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.ResponseEntity;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.BadCredentialsException;
 import org.springframework.security.authentication.DisabledException;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.core.userdetails.UserDetailsService;
-import org.springframework.web.bind.annotation.RequestBody;
+import org.springframework.web.bind.annotation.*;
 
 import java.io.IOException;
-
+@RestController
 public class AuthenticationController {
     @Autowired
     private AuthenticationManager authenticationManager;
@@ -22,7 +24,11 @@ public class AuthenticationController {
     @Autowired
     private UserDetailsService userDetailsService;
 
-    public AuthenticationReponse createAuthenticationToken(
+    @Autowired
+    private JwtUtil jwtUtil;
+
+    @PostMapping("/authentication")
+    public AuthenticationResponse createAuthenticationToken(
             @RequestBody AuthenticationRequest authenticationRequest,
             HttpServletResponse response) throws BadCredentialsException, IOException {
 
@@ -41,9 +47,11 @@ public class AuthenticationController {
         }
 
         final UserDetails userDetails = userDetailsService.loadUserByUsername(authEmail);
-        final String jwt;
+        final String jwt = jwtUtil.generateToken(userDetails.getUsername());
 
-        return null;
+        return new AuthenticationResponse(jwt);
 
     }
+
+   
 }
